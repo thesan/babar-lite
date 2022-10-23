@@ -196,10 +196,6 @@ var WorkspacesBar = GObject.registerClass(
       this.window_tooltip = new WindowTooltip();
 
       // signals
-      this._onScrollEventId = this.actor.connect(
-        "scroll-event",
-        this._onScrollEvent.bind(this)
-      );
       this._ws_number_changed = WM.connect(
         "notify::n-workspaces",
         this._update_ws.bind(this)
@@ -218,10 +214,6 @@ var WorkspacesBar = GObject.registerClass(
       );
       //this._window_left_monitor = global.display.connect('window-left-monitor', this._update_ws.bind(this));
       //this._window_entered_monitor = global.display.connect('window-entered-monitor', this._update_ws.bind(this));
-      this._onScrollEventId = this.actor.connect(
-        "scroll-event",
-        this._onScrollEvent.bind(this)
-      );
     }
 
     _destroy() {
@@ -263,68 +255,6 @@ var WorkspacesBar = GObject.registerClass(
 
       this.ws_bar.destroy();
       super.destroy();
-    }
-
-    // From: workspaces-to-dock@passingthru67.gmail.com/dockedWorkspaces.js
-    // See: https://github.com/passingthru67/workspaces-to-dock/blob/master/workspaces-to-dock%40passingthru67.gmail.com/dockedWorkspaces.js
-    _onScrollEvent(actor, event) {
-      let activeWs = global.workspace_manager.get_active_workspace();
-      const direction = getDirection();
-
-      if (direction) {
-        // if (this._settings.get_boolean('scroll-with-touchpad')) {
-        // 	// passingthru67: copied from dash-to-dock
-        // 	// Prevent scroll events from triggering too many workspace switches
-        // 	// by adding a 250ms deadtime between each scroll event.
-        // 	// Usefull on laptops when using a touchpad.
-
-        // 	// During the deadtime do nothing
-        // 	if(this._scrollWorkspaceSwitchDeadTimeId > 0)
-        // 		return false;
-        // 	else {
-        // 		this._scrollWorkspaceSwitchDeadTimeId =
-        // 			GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-        // 					this._scrollWorkspaceSwitchDeadTimeId = 0;
-        // 			});
-        // 	}
-        // }
-
-        const ws = activeWs.get_neighbor(direction);
-
-        // if (Main.wm._workspaceSwitcherPopup == null) {
-        // 	Main.wm._workspaceSwitcherPopup = new WorkspaceSwitcherPopup.WorkspaceSwitcherPopup();
-        // }
-
-        // // Set the workspaceSwitcherPopup actor to non reactive,
-        // // to prevent it from grabbing focus away from the dock
-        // Main.wm._workspaceSwitcherPopup.reactive = false;
-        // Main.wm._workspaceSwitcherPopup.connect('destroy', function() {
-        // 	Main.wm._workspaceSwitcherPopup = null;
-        // });
-
-        // // Do not show wokspaceSwitcher in overview
-        // if (!Main.overview.visible)
-        // 	Main.wm._workspaceSwitcherPopup.display(direction, ws.index());
-
-        Main.wm.actionMoveWorkspace(ws);
-      }
-
-      return Clutter.EVENT_STOP;
-
-      function getDirection() {
-        const Is_Horizontal = true; // Was: this._isHorizontal && this._settings.get_boolean('horizontal-workspace-switching')
-        const [prev, next] = Is_Horizontal ? ["LEFT", "RIGHT"] : ["UP", "DOWN"];
-
-        switch (event.get_scroll_direction()) {
-          case Clutter.ScrollDirection.UP:
-          case Clutter.ScrollDirection.LEFT:
-            return Meta.MotionDirection[prev];
-
-          case Clutter.ScrollDirection.DOWN:
-          case Clutter.ScrollDirection.RIGHT:
-            return Meta.MotionDirection[next];
-        }
-      }
     }
 
     _update_ws_names() {
