@@ -334,6 +334,9 @@ var WorkspacesBar = GObject.registerClass(
         w_box.connect("button-release-event", (widget, event) =>
           this._on_button_press(widget, event, w_box, ws_index, w)
         );
+        w_box.connect("scroll-event", (widget, event) =>
+          this._scroll_windows(widget, event, w_box, ws_index, w)
+        );
         w_box.connect("notify::hover", () =>
           this._on_button_hover(w_box, w.title)
         );
@@ -407,6 +410,30 @@ var WorkspacesBar = GObject.registerClass(
       if (MIDDLE_CLICK && event.get_button() == 2 && w.can_close()) {
         w.delete(global.get_current_time());
         this.window_tooltip.hide();
+      }
+    }
+
+    _scroll_windows(widget, event, w_box, ws_index, w) {
+      const direction = getScrollDirection(event);
+      if (!direction) return;
+
+      if (Main.overview.visible) {
+        return Main.overview.hide();
+      }
+
+      this.window_tooltip.hide();
+
+      if (ws_index == WM.get_active_workspace_index()) {
+        const windows = WM.get_workspace_by_index(ws_index).windows;
+        const current_w_index = windows.findIndex((w) => w.has_focus());
+        const len = windows.length;
+        const next_index = (len + current_w_index + direction) % len;
+        windows[next_index].activate(global.get_current_time());
+      } else {
+        w.activate(global.get_current_time());
+      }
+      if (!w.is_on_all_workspaces()) {
+        WM.get_workspace_by_index(ws_index).activate(global.get_current_time());
       }
     }
 
